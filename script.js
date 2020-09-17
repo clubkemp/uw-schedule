@@ -1,12 +1,17 @@
 //time variables from moment.js
+//used for adding the day to jumbtron (ie thursday)
 var day = moment().format('dddd'); 
+//used in jumbotron (ie september 23rd)
 var date = moment().format('MMMM Do')
+//used to save time to 12hr
 var hour12 = moment().format('h');
+//used to have the hour to 24 hour, easier to dissern am vs pm
 var hour24 = moment().format('H');
-var amPm = moment().format('a')
 
-var scheduleArray12 = [9,10,11,12,1,2,3,4,5,6,7,8]
-var scheduleArray24 = [9,10,11,12,13,14,15,16,17,18,19,20]
+//Array for populating hourBlocks on the page
+var scheduleArray12 = [9,10,11,12,1,2,3,4,5]
+//this array is used to check against the current time in 24h format, getting around am pm junk
+var scheduleArray24 = [9,10,11,12,13,14,15,16,17]
 var schedule = {
     9:"",
     10:"",
@@ -26,7 +31,8 @@ var textAreaDiv = $("textarea")
 
 
 
-dayP.text(`${day}, ${date}`)
+$( document ).ready(function() {
+    dayP.text(`${day}, ${date}`)
 
 $.each(scheduleArray12, function(index, value){
     var rowDiv = $("<div class='row timeblock'>")
@@ -61,4 +67,16 @@ $.each(scheduleArray12, function(index, value){
     containerDiv.append(rowDiv)
     // rowdiv.append($("<p"))
     // console.log(value);
+    
 })
+
+var saveBtn = $(".saveBtn")
+saveBtn.on("click", function(){
+    console.log("click");
+    var btnValue = ($(this).attr("data-time"))
+    var textareaValue = $(`textarea[data-time=${btnValue}]`).val();
+    console.log(btnValue,":", textareaValue)
+})
+
+
+});
