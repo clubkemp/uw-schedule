@@ -1,82 +1,141 @@
 //time variables from moment.js
 //used for adding the day to jumbtron (ie thursday)
-var day = moment().format('dddd'); 
+var day = moment().format("dddd");
 //used in jumbotron (ie september 23rd)
-var date = moment().format('MMMM Do')
+var date = moment().format("MMMM Do");
 //used to save time to 12hr
-var hour12 = moment().format('h');
+var hour12 = moment().format("h");
 //used to have the hour to 24 hour, easier to dissern am vs pm
-var hour24 = moment().format('H');
+var hour24 = moment().format("H");
 
-//Array for populating hourBlocks on the page
-var scheduleArray12 = [9,10,11,12,1,2,3,4,5]
-//this array is used to check against the current time in 24h format, getting around am pm junk
-var scheduleArray24 = [9,10,11,12,13,14,15,16,17]
-var schedule = {
-    9:"",
-    10:"",
-    11:"",
-    12:"",
-    1:"",
-    2:"",
-    3:"",
-    4:"",
-    5:"",
-    6:""
-}
+// //Array for populating hourBlocks on the page
+// var scheduleArray12 = [9, 10, 11, 12, 1, 2, 3, 4, 5];
+// //this array is used to check against the current time in 24h format, getting around am pm junk
+// var scheduleArray24 = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+//local obj to store data in
+//TODO: Need to have this be populated out of local memeory
+var schedule = [
+  { time: 9, time24: 9, text: "" },
+  { time: 10, time24: 10, text: "" },
+  { time: 11, time24: 11, text: "" },
+  { time: 12, time24: 12, text: "" },
+  { time: 1,  time24: 13, text: "" },
+  { time: 2, time24: 14, text: "" },
+  { time: 3, time24: 15, text: "" },
+  { time: 4, time24: 16, text: "" },
+  { time: 5, time24: 17, text: "" },
+];
 //jquery dom selectors
-var dayP = $("#currentDay")
-var containerDiv = $(".container")
-var textAreaDiv = $("textarea")
+//This is the current day in the Jumbotron
+var dayP = $("#currentDay");
+//The main container for content on the page
+var containerDiv = $(".container");
+//each text area DIV might not be needed...
+var textAreaDiv = $("textarea");
 
+var localSchedule = JSON.parse(localStorage.getItem("schedule"));
 
+if (localSchedule == null) {
+  console.log(localStorage.setItem("schedule",JSON.stringify(schedule)));
+  console.log ("No local storage" ,schedule)
+} else {
+    schedule = localSchedule
+    console.log("Loaded local storage", schedule)
+}
 
-$( document ).ready(function() {
-    dayP.text(`${day}, ${date}`)
+//makes sure all DOM elements are loaded before doing jquery work
+$(document).ready(function () {
+  //set the text of our jumbotron day to be the name of day, and the current date
+  dayP.text(`${day}, ${date}`);
 
-$.each(scheduleArray12, function(index, value){
-    var rowDiv = $("<div class='row timeblock'>")
-    // rowDiv.addClass("row timevlock")
-    var p = $("<p class='col-1 hour'>")
-    if(value === 9 || value === 10 || value === 11){
-        p.text(`${value}AM`)
-    }else{
-        p.text(`${value}PM`)   
+  //Use an each method to load in an array of times and create DOM elements
+  $.each(schedule, function (index, value) {
+    console.log(index, value)
+    //create the row that holds all the calender elments.
+    // set the class needed to style
+    var rowDiv = $("<div class='row timeblock'>");
+    // create the p element that will hold the hour of the day
+    //set the class to hour  for styling
+    var p = $("<p class='col-1 hour'>");
+    //need to do a little voodoo to add in if its AM or PM
+    //TODO: Could potentially hard code in the AM and PM
+    if (value.time === 9 || value.time === 10 || value.time === 11) {
+      //if it's am value.times update the text content
+      p.text(`${value.time}AM`);
+    } else {
+      //else its a pm value.time update the text content
+      p.text(`${value.time}PM`);
     }
-    
-    rowDiv.append(p)
-    
-    var textArea = $("<textarea class='col description'>")
-    textArea.attr("data-time",value)
+    //append our new p element to the row
+    rowDiv.append(p);
 
-    if(value === parseInt(hour12)){
-        console.log("Its the time")
-        textArea.addClass("present")    
-    }else if (scheduleArray24[index] < parseInt(hour24)) {
-        textArea.addClass("past") 
-    }else{
-        textArea.addClass("future") 
+    //create a textarea element
+    //set the class to desctription
+    var textArea = $("<textarea class='col description'>");
+    //update the textarea attribute data-value.time, set it to the value.time at our current index in our schedule array
+    textArea.attr("data-time", value.time);
+    //update the text area field if there was something stored in LocalStorage
+    if(value.text != ""){
+        textArea.text(value.text)
     }
+    //We need to assign a class that colors the textarea based on the current time
+    //check if the value.time out of our array is equal to the current time(hour12)
+    if (value.time24 === parseInt(hour24)) {
+      //add the class present to textarea to style with css
+      textArea.addClass("present");
+      //perform another check to see if the shchedule time in 24 format is less than current time
+    } else if (value.time24 < parseInt(hour24)) {
+      //add the class past to text area to style with css
+      textArea.addClass("past");
+      //if its not the current time, and it's not in the past, it must be the fture
+    } else {
+      //add class to text area to style with css
+      textArea.addClass("future");
+    }
+    //append our text area to the row
     rowDiv.append(textArea);
 
-    var button = $("<button class='col-1 saveBtn'>")
-    button.html("<i class='fas fa-save'></i>")
-    button.attr("data-time",value)
+    //create a button element with class of saveBtn
+    var button = $("<button class='col-1 saveBtn'>");
+    //add the syntax for a font awesome save button to button interior
+    button.html("<i class='fas fa-save'></i>");
+    //add the attribute data-time with the value of the current array item
+    button.attr("data-time", value.time);
+    //add our button to the row
     rowDiv.append(button);
 
-    containerDiv.append(rowDiv)
-    // rowdiv.append($("<p"))
-    // console.log(value);
-    
-})
+    //Our row is now loaded with all our elements,so we can append it to the container
+    containerDiv.append(rowDiv);
+  });
 
-var saveBtn = $(".saveBtn")
-saveBtn.on("click", function(){
-    console.log("click");
-    var btnValue = ($(this).attr("data-time"))
+  //attach a listener event on our buttons, if it matche .saveBtn. needs to be on.(click) istead of .click()
+  $(document).on("click", ".saveBtn", function () {
+    // grab the value of the button you clicked using the data-time attribute
+    var btnValue = $(this).attr("data-time");
+    //use jquery query selector to grab the textarea with a matching data-time value
     var textareaValue = $(`textarea[data-time=${btnValue}]`).val();
-    console.log(btnValue,":", textareaValue)
-})
+    //TODO: Update our schedule obj with textareaValue using btnValue as the key
+    // console.log(btnValue, ":", textareaValue);
+    updateStorage(btnValue, textareaValue)
+  });
 
+  function updateStorage(time, value) {
+      schedule.forEach(element => {
+          if(element.time === parseInt(time)){
+            console.log(element.text, value)
+            element.text = value
+          }
+      });
+      localStorage.setItem("schedule", JSON.stringify(schedule))
 
+  }
+
+  $("#reset").on("click", function(){
+     schedule.forEach(element =>{
+         element.text = ""
+        $(`textarea[data-time=${element.time}]`).text("")
+
+     })
+     localStorage.setItem("schedule", JSON.stringify(schedule)) 
+  })
 });
