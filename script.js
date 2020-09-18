@@ -8,12 +8,7 @@ var hour12 = moment().format("h");
 //used to have the hour to 24 hour, easier to dissern am vs pm
 var hour24 = moment().format("H");
 
-// //Array for populating hourBlocks on the page
-// var scheduleArray12 = [9, 10, 11, 12, 1, 2, 3, 4, 5];
-// //this array is used to check against the current time in 24h format, getting around am pm junk
-// var scheduleArray24 = [9, 10, 11, 12, 13, 14, 15, 16, 17];
-//local obj to store data in
-//TODO: Need to have this be populated out of local memeory
+//schdule array of objects to handle building the dom, will load local storage into it
 var schedule = [
   { time: 9, time24: 9, text: "" },
   { time: 10, time24: 10, text: "" },
@@ -33,14 +28,12 @@ var containerDiv = $(".container");
 //each text area DIV might not be needed...
 var textAreaDiv = $("textarea");
 
+//setup a variable and load in the locacal  storage into it
 var localSchedule = JSON.parse(localStorage.getItem("schedule"));
-
-if (localSchedule == null) {
-  console.log(localStorage.setItem("schedule",JSON.stringify(schedule)));
-  console.log ("No local storage" ,schedule)
-} else {
-    schedule = localSchedule
-    console.log("Loaded local storage", schedule)
+//check to see if localstorage actually has anything in it
+if (localSchedule != null) {
+  //if there actually is something in localstorage, update the schedule from it
+  schedule = localSchedule
 }
 
 //makes sure all DOM elements are loaded before doing jquery work
