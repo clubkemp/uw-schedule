@@ -50,7 +50,7 @@ $(document).ready(function () {
 
   //Use an each method to load in an array of times and create DOM elements
   $.each(schedule, function (index, value) {
-    console.log(index, value)
+    console.log(index, value);
     //create the row that holds all the calender elments.
     // set the class needed to style
     var rowDiv = $("<div class='row timeblock'>");
@@ -75,8 +75,8 @@ $(document).ready(function () {
     //update the textarea attribute data-value.time, set it to the value.time at our current index in our schedule array
     textArea.attr("data-time", value.time);
     //update the text area field if there was something stored in LocalStorage
-    if(value.text != ""){
-        textArea.text(value.text)
+    if (value.text != "") {
+      textArea.text(value.text);
     }
     //We need to assign a class that colors the textarea based on the current time
     //check if the value.time out of our array is equal to the current time(hour12)
@@ -114,28 +114,34 @@ $(document).ready(function () {
     var btnValue = $(this).attr("data-time");
     //use jquery query selector to grab the textarea with a matching data-time value
     var textareaValue = $(`textarea[data-time=${btnValue}]`).val();
-    //TODO: Update our schedule obj with textareaValue using btnValue as the key
-    // console.log(btnValue, ":", textareaValue);
-    updateStorage(btnValue, textareaValue)
+    //Update our schedule obj with textareaValue using btnValue as the key
+    updateStorage(btnValue, textareaValue);
   });
 
+  //Fired at the end of the save button click, take in the data-time from button and the text value from textarea
   function updateStorage(time, value) {
-      schedule.forEach(element => {
-          if(element.time === parseInt(time)){
-            console.log(element.text, value)
-            element.text = value
-          }
-      });
-      localStorage.setItem("schedule", JSON.stringify(schedule))
-
+    //need to loop through the schedule to find the right one to update
+    schedule.forEach((element) => {
+      //if the loop gets to an object where its time value matches the time attribute from our click event
+      if (element.time === parseInt(time)) {
+        //then update that elements text value in the schedule array using the value from textarea
+        element.text = value;
+      }
+    });
+    //now that we've loope through and updated the right object in our schedule array, push the whole schedule back up to local storage
+    localStorage.setItem("schedule", JSON.stringify(schedule));
   }
 
-  $("#reset").on("click", function(){
-     schedule.forEach(element =>{
-         element.text = ""
-        $(`textarea[data-time=${element.time}]`).text("")
-
-     })
-     localStorage.setItem("schedule", JSON.stringify(schedule)) 
-  })
+  //adding a listener onto our added reset button
+  $("#reset").on("click", function () {
+    //loop through the shecule array 
+    schedule.forEach((element) => {
+      //change all the text fields to blank
+        element.text = "";
+        //use a jqery selctor query to set all textareas to be blank
+      $(`textarea[data-time=${element.time}]`).text("");
+    });
+    //update local storage
+    localStorage.setItem("schedule", JSON.stringify(schedule));
+  });
 });
